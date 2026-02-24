@@ -7,6 +7,7 @@ const total = document.getElementById('total')
 const intervewCount = document.getElementById('interview-count')
 const rejectCount = document.getElementById('rejected-conunt')
 const jobs= document.getElementById('job')
+// const emty = document.getElementById('emty')
 
 
 const allFilterBtn = document.getElementById('all-filter-btn')
@@ -15,6 +16,11 @@ const rejectFilterBtn = document.getElementById('rejected-filter-btn')
 
 const allCountSection = document.getElementById('all-cards')
 // console.log(allCountSection)
+
+function showEmptyCard() {
+    const emptyCard = `<div class="empty-card py-10 flex flex-col items-center justify-center  bg-gray-100 "><img src="./jobs.png"/><h3>No jobs available</h3><p>Check back soon for new job opportunities</p></div>`
+    document.getElementById('emty').innerHTML = emptyCard
+}
 
 // count
 function calculateCount(){
@@ -51,6 +57,13 @@ function toggleStyle(id){
     allCountSection.classList.add('hidden');
     fiterScetion.classList.remove('hidden')
     jobs.classList.add('hidden')
+    if(intervew.length === 0){
+      showEmptyCard() ;
+      return
+      
+    }
+    
+
     renderIntervew()
     
 
@@ -58,12 +71,18 @@ function toggleStyle(id){
     allCountSection.classList.add('hidden');
     fiterScetion.classList.remove('hidden')
     jobs.classList.remove('hidden')
+    if(reject.length == 0){
+     showEmptyCard();
+     return;
+    }
+    
     renderReject()
     
   }else{
     allCountSection.classList.remove('hidden');
     fiterScetion.classList.add('hidden')
     jobs.classList.remove('hidden')
+    emty.classList.add('hidden')
     
   }
 
