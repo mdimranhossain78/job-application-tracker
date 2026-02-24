@@ -51,6 +51,7 @@ function toggleStyle(id){
     allCountSection.classList.add('hidden');
     fiterScetion.classList.remove('hidden')
     jobs.classList.add('hidden')
+    renderIntervew()
     
 
   }else if(id ==="rejected-filter-btn"){
@@ -100,10 +101,12 @@ container.addEventListener('click',function(even){
       intervew.push(jobInfo)
     }
     reject = reject.filter(item=> item.company !== jobInfo.company)
-    
+    if(current === 'rejected-filter-btn'){
+     renderReject()
+    }
     
     calculateCount()
-     renderIntervew()
+     
     
   }else if(even.target.classList.contains('reject-btn')){
      const parentNode = even.target.parentNode.parentNode;
