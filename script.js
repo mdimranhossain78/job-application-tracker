@@ -1,249 +1,234 @@
-
 let intervew = [];
 let reject = [];
-let current = 'all'
+let current = "all-filter-btn";
 
-const total = document.getElementById('total')
-const intervewCount = document.getElementById('interview-count')
-const rejectCount = document.getElementById('rejected-conunt')
-const jobs= document.getElementById('job')
-// const emty = document.getElementById('emty')
+const total = document.getElementById("total");
+const intervewCount = document.getElementById("interview-count");
+const rejectCount = document.getElementById("rejected-conunt");
 
+const jobs = document.getElementById("job");
+const emty = document.getElementById("emty");
+const countItnr = document.getElementById("countIntr");
+const of = document.getElementById("of");
 
-const allFilterBtn = document.getElementById('all-filter-btn')
-const intervewFilterBtn = document.getElementById('intervew-filter-btn')
-const rejectFilterBtn = document.getElementById('rejected-filter-btn')
+const allFilterBtn = document.getElementById("all-filter-btn");
+const intervewFilterBtn = document.getElementById("intervew-filter-btn");
+const rejectFilterBtn = document.getElementById("rejected-filter-btn");
 
-const allCountSection = document.getElementById('all-cards')
-// console.log(allCountSection)
+const allCountSection = document.getElementById("all-cards");
+const fiterScetion = document.getElementById("filer-cards");
+const container = document.querySelector("main");
 
-function showEmptyCard() {
-    const emptyCard = `<div class="empty-card py-10 flex flex-col items-center justify-center  bg-gray-100 "><img src="./jobs.png"/><h3>No jobs available</h3><p>Check back soon for new job opportunities</p></div>`
-    document.getElementById('emty').innerHTML = emptyCard
+function calculateCount() {
+  total.innerText = allCountSection.children.length;
+  intervewCount.innerText = intervew.length;
+  rejectCount.innerText = reject.length;
+
+  jobs.innerText = total.innerText;
+
+  // this number changes depending on current tab, set inside toggleStyle too
 }
 
-// count
-function calculateCount(){
-total.innerText = allCountSection.children.length;
-intervewCount.innerText = intervew.length;
-rejectCount.innerText = reject.length;
-jobs.innerText = total.innerText
+function showEmpty(show) {
+  if (show) emty.classList.remove("hidden");
+  else emty.classList.add("hidden");
+}
 
-} 
-calculateCount()
+function setActiveButton(id) {
+  [allFilterBtn, intervewFilterBtn, rejectFilterBtn].forEach((btn) => {
+    btn.classList.remove("bg-black", "text-white");
+    btn.classList.add("bg-gray-300", "text-black");
+  });
 
-let container =document.querySelector('main')
+  const selected = document.getElementById(id);
+  selected.classList.remove("bg-gray-300", "text-black");
+  selected.classList.add("bg-black", "text-white");
+}
 
-let fiterScetion = document.getElementById('filer-cards')
-//toggling buttons
-function toggleStyle(id){
- allFilterBtn.classList.remove("bg-black", "text-white");
- intervewFilterBtn.classList.remove("bg-black", "text-white");
- rejectFilterBtn.classList.remove("bg-black", "text-white");
+function toggleStyle(id) {
+  current = id;
+  setActiveButton(id);
 
+  if (id === "intervew-filter-btn") {
+    allCountSection.classList.add("hidden");
+    fiterScetion.classList.remove("hidden");
 
-  allFilterBtn.classList.add("bg-gray-300", "text-black");
-  intervewFilterBtn.classList.add("bg-gray-300", "text-black");
-  rejectFilterBtn.classList.add("bg-gray-300", "text-black");
+    of.classList.remove("hidden");
+    countItnr.classList.remove("hidden");
 
+    countItnr.innerText = intervew.length;
+    jobs.innerText = total.innerText;
 
-  let selacted = document.getElementById(id)
-  current=id
+    renderIntervew();
+    showEmpty(intervew.length === 0);
+  } else if (id === "rejected-filter-btn") {
+    allCountSection.classList.add("hidden");
+    fiterScetion.classList.remove("hidden");
 
-  selacted.classList.remove('bg-gray-300',"text-black")
-  selacted.classList.add( "bg-black","text-white")
+    of.classList.remove("hidden");
+    countItnr.classList.remove("hidden");
 
-  if(id === 'intervew-filter-btn' ){
-    allCountSection.classList.add('hidden');
-    fiterScetion.classList.remove('hidden')
-    jobs.classList.add('hidden')
-    if(intervew.length === 0){
-      showEmptyCard() ;
-      return
-      
-    }
-    
+    countItnr.innerText = reject.length;
+    jobs.innerText = total.innerText;
 
-    renderIntervew()
-    
+    renderReject();
+    showEmpty(reject.length === 0);
+  } else {
+    allCountSection.classList.remove("hidden");
+    fiterScetion.classList.add("hidden");
 
-  }else if(id ==="rejected-filter-btn"){
-    allCountSection.classList.add('hidden');
-    fiterScetion.classList.remove('hidden')
-    jobs.classList.remove('hidden')
-    if(reject.length == 0){
-     showEmptyCard();
-     return;
-    }
-    
-    renderReject()
-    
-  }else{
-    allCountSection.classList.remove('hidden');
-    fiterScetion.classList.add('hidden')
-    jobs.classList.remove('hidden')
-    emty.classList.add('hidden')
-    
+    of.classList.add("hidden");
+    countItnr.classList.add("hidden");
+
+    showEmpty(false);
   }
 
+  calculateCount();
 }
 
+function getJobFromCard(card) {
+  const company = card.querySelector(".company")?.innerText.trim() || "";
+  const position = card.querySelector(".position")?.innerText.trim() || "";
+  const salary = card.querySelector(".salary")?.innerText.trim() || "";
+  const descript = card.querySelector(".description")?.innerText.trim() || "";
 
+  return { company, position, salary, descript };
+}
 
-container.addEventListener('click',function(even){
-  console.log(even.target.classList.contains('intervew-btn'))
-  if(even.target.classList.contains('intervew-btn')){
-    const parentNode = even.target.parentNode.parentNode;
-    // console.log(parentNode)
+function cardTemplate(job, statusText) {
+  return `
+    <div class="job-card flex justify-between bg-white p-3 rounded-md">
+      <div class="space-y-2">
+        <div>
+          <p class="company font-bold text-2xl">${job.company}</p>
+          <p class="position">${job.position}</p>
+        </div>
 
-    const company= parentNode.querySelector('.company').innerText
-    const position = parentNode.querySelector('.position').innerText
-    const salary = parentNode.querySelector('.salary').innerText
-    const status = parentNode.querySelector(".status").innerText
-    const descript =parentNode.querySelector(".description").innerText
+        <p class="salary">${job.salary}</p>
 
-    parentNode.querySelector('.status').innerText = 'Intervew'
+        <div>
+          <p class="status">${statusText}</p>
+          <p class="description">${job.descript}</p>
+        </div>
 
-    const jobInfo = {
-      company,
-      position,
-      salary,
-      status:"Inntervew",
-      descript
+        <div>
+          <button class="intervew-btn bg-gray-300 px-5">Interview</button>
+          <button class="reject-btn bg-gray-300 px-5">Rejected</button>
+        </div>
+      </div>
 
-    }
-    console.log(jobInfo)
+      <div class="self-start">
+        <button class="delete-btn" title="Delete">
+          <i class="fa-solid fa-trash-can"></i>
+        </button>
+      </div>
+    </div>
+  `;
+}
 
-   let jobExist = intervew.find(item=> item.company === jobInfo.company)
+function renderIntervew() {
+  fiterScetion.innerHTML = "";
+  for (const job of intervew) {
+    const wrap = document.createElement("div");
+    wrap.innerHTML = cardTemplate(job, "Interview");
+    fiterScetion.appendChild(wrap.firstElementChild);
+  }
+}
 
-    if(!jobExist){
-      intervew.push(jobInfo)
-    }
-    reject = reject.filter(item=> item.company !== jobInfo.company)
-    if(current === 'rejected-filter-btn'){
-     renderReject()
-    }
-    
-    calculateCount()
-     
-    
-  }else if(even.target.classList.contains('reject-btn')){
-     const parentNode = even.target.parentNode.parentNode;
-    // console.log(parentNode)
+function renderReject() {
+  fiterScetion.innerHTML = "";
+  for (const job of reject) {
+    const wrap = document.createElement("div");
+    wrap.innerHTML = cardTemplate(job, "Rejected");
+    fiterScetion.appendChild(wrap.firstElementChild);
+  }
+}
 
-    const company= parentNode.querySelector('.company').innerText
-    const position = parentNode.querySelector('.position').innerText
-    const salary = parentNode.querySelector('.salary').innerText
-    const status = parentNode.querySelector(".status").innerText
-    const descript =parentNode.querySelector(".description").innerText
+container.addEventListener("click", function (event) {
+  const interviewBtn = event.target.closest(".intervew-btn");
+  const rejectBtn = event.target.closest(".reject-btn");
+  const deleteBtn = event.target.closest(".delete-btn");
 
-    parentNode.querySelector('.status').innerText = 'Reject'
+  // Interview
+  if (interviewBtn) {
+    const card = interviewBtn.closest(".job-card");
+    if (!card) return;
 
-    const jobInfo = {
-      company,
-      position,
-      salary,
-      status:"Reject",
-      descript
+    const job = getJobFromCard(card);
 
-    }
-    console.log(jobInfo)
+    const exists = intervew.find((x) => x.company === job.company);
+    if (!exists) intervew.push({ ...job, status: "Interview" });
 
-   let jobExist = reject.find(item=> item.company === jobInfo.company)
+    reject = reject.filter((x) => x.company !== job.company);
 
-    if(!jobExist){
-      reject.push(jobInfo)
-    }
+    // update visible status if clicked from All list
+    const statusEl = card.querySelector(".status");
+    if (statusEl) statusEl.innerText = "Interview";
 
-   intervew = intervew.filter(item=> item.company !== jobInfo.company)
-   if(current === 'intervew-filter-btn'){
-      renderIntervew()
-    }
-    
-    calculateCount()
-    
+    if (current === "intervew-filter-btn") renderIntervew();
+    if (current === "rejected-filter-btn") renderReject();
+
+    // empty handling
+    if (current === "intervew-filter-btn") showEmpty(intervew.length === 0);
+    if (current === "rejected-filter-btn") showEmpty(reject.length === 0);
+
+    calculateCount();
+    countItnr.innerText = current === "intervew-filter-btn" ? intervew.length : reject.length;
+    return;
   }
 
+  // Rejected
+  if (rejectBtn) {
+    const card = rejectBtn.closest(".job-card");
+    if (!card) return;
 
-})
+    const job = getJobFromCard(card);
 
+    const exists = reject.find((x) => x.company === job.company);
+    if (!exists) reject.push({ ...job, status: "Rejected" });
 
-function renderIntervew(){
- fiterScetion.innerHTML = ''
- for(let inter of intervew){
-  let div = document.createElement('div')
-  div.className = "flex justify-between bg-white p-3 rounded-md"
-  div.innerHTML=`
-  <div  class="flex justify-between bg-white p-3 rounded-md">
-        <!-- part 1 -->
-         <!-- left side -->
-        <div class="space-y-2">
-            <div>
-            <p class="company font-bold text-2xl">${inter.company}</p>
-            <p class="position">${inter.position}</p>
-         </div>
-         <p class="salary">${inter.salary}</p>
-         <!-- part 3 -->
-          <div>
-            <p class="status">${inter.status}</p>
-            <p class="description">${inter.descript}</p>
-          </div>
-          <!-- part 4 -->
-           <div>
-            <button class=" intervew-btn bg-gray-300 px-5">intervew</button>
-            <button class=" reject-btn bg-gray-300 px-5">Rejected</button>
-           </div>
-          </div>
-         <!-- right side -->
-         <div>
-            <button><i class="fa-solid fa-trash-can"></i></button>
-         </div>
-     </div>
-      
-  
-  `
-  fiterScetion.appendChild(div)
- }
+    intervew = intervew.filter((x) => x.company !== job.company);
 
-}
+    const statusEl = card.querySelector(".status");
+    if (statusEl) statusEl.innerText = "Rejected";
 
-function renderReject(){
- fiterScetion.innerHTML = ''
- for(let r of reject){
-  let div = document.createElement('div')
-  div.className = "flex justify-between bg-white p-3 rounded-md"
-  div.innerHTML=`
-  <div  class="flex justify-between bg-white p-3 rounded-md">
-        <!-- part 1 -->
-         <!-- left side -->
-        <div class="space-y-2">
-            <div>
-            <p class="company font-bold text-2xl">${r.company}</p>
-            <p class="position">${r.position}</p>
-         </div>
-         <p class="salary">${r.salary}</p>
-         <!-- part 3 -->
-          <div>
-            <p class="status">${r.status}</p>
-            <p class="description">${r.descript}</p>
-          </div>
-          <!-- part 4 -->
-           <div>
-            <button class=" intervew-btn bg-gray-300 px-5">intervew</button>
-            <button class=" reject-btn bg-gray-300 px-5">Rejected</button>
-           </div>
-          </div>
-         <!-- right side -->
-         <div>
-            <button><i class="fa-solid fa-trash-can"></i></button>
-         </div>
-     </div>
-      
-  
-  `
-  fiterScetion.appendChild(div)
- }
+    if (current === "intervew-filter-btn") renderIntervew();
+    if (current === "rejected-filter-btn") renderReject();
 
-}
+    if (current === "intervew-filter-btn") showEmpty(intervew.length === 0);
+    if (current === "rejected-filter-btn") showEmpty(reject.length === 0);
 
+    calculateCount();
+    countItnr.innerText = current === "intervew-filter-btn" ? intervew.length : reject.length;
+    return;
+  }
 
+  // Delete
+  if (deleteBtn) {
+    const card = deleteBtn.closest(".job-card");
+    if (!card) return;
+
+    const company = card.querySelector(".company")?.innerText.trim();
+
+    // remove from arrays
+    intervew = intervew.filter((x) => x.company !== company);
+    reject = reject.filter((x) => x.company !== company);
+
+    // remove card from DOM if it's in all list
+    card.remove();
+
+    // re-render if currently on a filtered tab
+    if (current === "intervew-filter-btn") renderIntervew();
+    if (current === "rejected-filter-btn") renderReject();
+
+    if (current === "intervew-filter-btn") showEmpty(intervew.length === 0);
+    if (current === "rejected-filter-btn") showEmpty(reject.length === 0);
+
+    calculateCount();
+    countItnr.innerText = current === "intervew-filter-btn" ? intervew.length : reject.length;
+    return;
+  }
+});
+
+calculateCount();
+toggleStyle("all-filter-btn");
